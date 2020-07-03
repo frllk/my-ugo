@@ -11,7 +11,7 @@
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+				title: 'Hello Ugo商城，我来了~~~'
 			}
 		},
 		onLoad() {

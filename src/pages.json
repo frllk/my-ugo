@@ -1,16 +1,61 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [ 
+    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
+      "path": "pages/index/index",
+      // 页面的配置
 			"style": {
-				"navigationBarTitleText": "uni-app"
+        "navigationBarTitleText": "首页"
 			}
-		}
-	],
+    },
+    {
+      "path": "pages/category/index"
+    },
+    {
+      "path": "pages/cart/index"
+    },
+    {
+      "path": "pages/profile/index"
+    }
+  ],
+  // 相当于小程序的window
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "黑马优购",
+		"navigationBarBackgroundColor": "#ff2d4a",
 		"backgroundColor": "#F8F8F8"
-	}
+  },
+  // 配置标签页
+  "tabBar": {
+    "color": "#000",
+    "selectedColor": "#ff2d4a",
+    "backgroundColor": "#fff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "text": "首页",
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tabs/icon_home@3x.png",
+        "selectedIconPath": "static/tabs/icon_home_active@3x.png"
+      },
+      {
+        "text": "分类",
+        "pagePath": "pages/category/index",
+        "iconPath": "static/tabs/icon_category@3x.png",
+        "selectedIconPath": "static/tabs/icon_category_active@3x.png"
+      },
+      {
+        "text": "购物车",
+        "pagePath": "pages/cart/index",
+        "iconPath": "static/tabs/icon_cart@3x.png",
+        "selectedIconPath": "static/tabs/icon_cart_active@3x.png"
+      },
+      {
+        "text": "我的",
+        "pagePath": "pages/profile/index",
+        "iconPath": "static/tabs/icon_user@3x.png",
+        "selectedIconPath": "static/tabs/icon_user_active@3x.png"
+      }
+    ]
+  }
 }
