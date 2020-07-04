@@ -21,6 +21,7 @@ export default async function request({ url, method, data, header }) {
     header,
     method
   });
+
   if (!error) {
     // 处理返回数据
     let { data: { message, meta } } = res
@@ -35,3 +36,12 @@ export default async function request({ url, method, data, header }) {
     return []
   }
 }
+
+// vue插件
+const MyRequest = {
+  install(Vue) {
+    Vue.prototype.request = request
+  }
+}
+// 导出插件
+export { MyRequest }

@@ -128,7 +128,6 @@
 <script>
 // 导入组件
 import search from "@/components/search";
-import request from "@/utils/request";
 export default {
   data() {
     return {
@@ -156,10 +155,10 @@ export default {
       this.pageHeight = e;
     },
     async getSwiperData() {
-      let res = await request({
+      let { msg, data } = await this.request({
         url: "/api/public/v1/home/swiperdata"
       });
-      console.log(res);
+      console.log(data);
     }
   }
 };
