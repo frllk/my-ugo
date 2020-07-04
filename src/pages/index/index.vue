@@ -1,7 +1,7 @@
 <template>
-  <view class="index">
+  <view class="index" :style="{overflow:'hidden', height: pageHeight}">
     <!-- 搜索 -->
-    <search />
+    <search @setHeight="setHeight" />
     <!-- 轮播图 -->
     <view class="silder">
       <swiper indicator-dots autoplay circular indicator-color="rgba(0,0,0,.2)"
@@ -76,14 +76,20 @@ import search from "@/components/search.vue";
 export default {
   data() {
     return {
-      title: "Hello Ugo商城，我来了~~~"
+      title: "Hello Ugo商城，我来了~~~",
+      pageHeight: "auto"
     };
   },
   components: {
     search
   },
   onLoad() {},
-  methods: {}
+  methods: {
+    setHeight(e) {
+      console.log(e);
+      this.pageHeight = e;
+    }
+  }
 };
 </script>
 
