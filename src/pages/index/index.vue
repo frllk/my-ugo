@@ -6,112 +6,33 @@
     <view class="slider">
       <swiper autoplay interval="2000" circular indicator-dots indicator-color="rgba(255,255,255,1)"
         indicator-active-color="rgba(255,255,255,.6)">
-        <swiper-item>
-          <navigator url>
-            <image src="/static/uploads/banner1.png" />
-          </navigator>
-        </swiper-item>
-        <swiper-item>
-          <navigator url>
-            <image src="/static/uploads/banner2.png" />
-          </navigator>
-        </swiper-item>
-        <swiper-item>
-          <navigator url>
-            <image src="/static/uploads/banner3.png" />
+        <swiper-item v-for="item in swiper" :key="item.goods_id">
+          <navigator :url="'/pages/goods/index?id='+item.goods_id">
+            <image :src="item.image_src" />
           </navigator>
         </swiper-item>
       </swiper>
     </view>
     <!-- 功能导航 -->
     <view class="navs">
-      <navigator url>
-        <image src="/static/uploads/icon_index_nav_1@2x.png" />
-      </navigator>
-      <navigator url>
-        <image src="/static/uploads/icon_index_nav_2@2x.png" />
-      </navigator>
-      <navigator url>
-        <image src="/static/uploads/icon_index_nav_3@2x.png" />
-      </navigator>
-      <navigator url>
-        <image src="/static/uploads/icon_index_nav_4@2x.png" />
+      <navigator v-for="(item, index) in navs" :key="index"
+        :url="item.navigator_url ? '/pages/category/index': '/pages/list/index?query='+item.name"
+        :open-type="item.open_type || 'navigate'">
+        <image :src="item.image_src" />
       </navigator>
     </view>
     <!-- 栏目楼层 -->
     <view class="floors">
       <!-- 1 -->
-      <view class="floor">
+      <view v-for="item in floors" :key="item.name" class="floor">
         <!-- title -->
         <view class="ftitle">
-          <image src="/static/uploads/pic_floor01_title.png" />
+          <image :src="item.floor_title.image_src" />
         </view>
         <!-- pics -->
         <view class="fitem">
-          <navigator url>
-            <image src="/static/uploads/pic_floor01_1@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor01_2@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor01_3@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor01_4@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor01_5@2x.png" />
-          </navigator>
-        </view>
-      </view>
-      <!-- 2 -->
-      <view class="floor">
-        <!-- title -->
-        <view class="ftitle">
-          <image src="/static/uploads/pic_floor02_title.png" />
-        </view>
-        <!-- pics -->
-        <view class="fitem">
-          <navigator url>
-            <image src="/static/uploads/pic_floor02_1@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor02_2@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor02_3@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor02_4@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor02_5@2x.png" />
-          </navigator>
-        </view>
-      </view>
-      <!-- 3 -->
-      <view class="floor">
-        <!-- title -->
-        <view class="ftitle">
-          <image src="/static/uploads/pic_floor03_title.png" />
-        </view>
-        <!-- pics -->
-        <view class="fitem">
-          <navigator url>
-            <image src="/static/uploads/pic_floor03_1@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor03_2@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor03_3@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor03_4@2x.png" />
-          </navigator>
-          <navigator url>
-            <image src="/static/uploads/pic_floor03_5@2x.png" />
+          <navigator :url="'/pages/list/index?query=' +prd.name" v-for="(prd, index) in item.product_list" :key="index">
+            <image :src="prd.image_src" />
           </navigator>
         </view>
       </view>
@@ -121,7 +42,7 @@
       <text>我是有底线的！</text>
     </view>
     <!-- 回到顶部 -->
-    <view class="goTop icon-top"></view>
+    <view @click="goTop" class="goTop icon-top"></view>
   </view>
 </template>
 
@@ -131,7 +52,13 @@ import search from "@/components/search";
 export default {
   data() {
     return {
-      pageHeight: "auto"
+      pageHeight: "auto",
+      // 轮播图
+      swiper: [],
+      // 导航
+      navs: [],
+      // 楼层
+      floors: []
     };
   },
   // 注册组件
@@ -148,16 +75,68 @@ export default {
     //   }
     // });
     this.getSwiperData();
+    this.getNavsData();
+    this.getFloorsData();
+  },
+  onPullDownRefresh() {
+    console.log("开始刷新...");
+    Promise.all([
+      this.getSwiperData(),
+      this.getNavsData(),
+      this.getFloorsData()
+    ]).then(() => {
+      // 执行完停止loading
+      uni.stopPullDownRefresh();
+    });
   },
   methods: {
     // 搜索时禁止页面滚动
     disScroll(e) {
       this.pageHeight = e;
     },
+    goTop() {
+      uni.pageScrollTo({
+        scrollTop: 0,
+        duration: 300
+      });
+    },
+    // 获取轮播图数据
     async getSwiperData() {
-      let { msg, data } = await this.request({
+      let {
+        msg: { status },
+        data
+      } = await this.request({
         url: "/api/public/v1/home/swiperdata"
       });
+      if (status === 200) {
+        this.swiper = data;
+      }
+      console.log(data);
+    },
+    // 获取分类导航数据
+    async getNavsData() {
+      let {
+        msg: { status },
+        data
+      } = await this.request({
+        url: "/api/public/v1/home/catitems"
+      });
+      if (status === 200) {
+        this.navs = data;
+      }
+      console.log(data);
+    },
+    // 获取楼层数据
+    async getFloorsData() {
+      let {
+        msg: { status },
+        data
+      } = await this.request({
+        url: "/api/public/v1/home/floordata"
+      });
+      if (status === 200) {
+        this.floors = data;
+      }
       console.log(data);
     }
   }
