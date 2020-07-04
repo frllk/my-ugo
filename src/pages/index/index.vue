@@ -4,14 +4,8 @@
     <search @search="disScroll" />
     <!-- 轮播图 -->
     <view class="slider">
-      <swiper
-        autoplay
-        interval="2000"
-        circular
-        indicator-dots
-        indicator-color="rgba(255,255,255,1)"
-        indicator-active-color="rgba(255,255,255,.6)"
-      >
+      <swiper autoplay interval="2000" circular indicator-dots indicator-color="rgba(255,255,255,1)"
+        indicator-active-color="rgba(255,255,255,.6)">
         <swiper-item>
           <navigator url>
             <image src="/static/uploads/banner1.png" />
@@ -134,6 +128,7 @@
 <script>
 // 导入组件
 import search from "@/components/search";
+import request from "@/utils/request";
 export default {
   data() {
     return {
@@ -144,11 +139,27 @@ export default {
   components: {
     search
   },
-  onLoad() {},
+  // vue=>created
+  onLoad() {
+    // uni.request({
+    //   url: "https://api-ugo-dev.itheima.net/api/public/v1/home/swiperdata",
+    //   success(res) {
+    //     const { data } = res;
+    //     console.log(data, res);
+    //   }
+    // });
+    this.getSwiperData();
+  },
   methods: {
     // 搜索时禁止页面滚动
     disScroll(e) {
       this.pageHeight = e;
+    },
+    async getSwiperData() {
+      let res = await request({
+        url: "/api/public/v1/home/swiperdata"
+      });
+      console.log(res);
     }
   }
 };
