@@ -3,16 +3,8 @@
     //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
       "path": "pages/index/index",
-      // 页面的配置
       "style": {
-        "navigationBarTitleText": "首页"
-      }
-    },
-    {
-      "path": "pages/index/index1",
-      // 页面的配置
-      "style": {
-        "navigationBarTitleText": "首页"
+        // "enablePullDownRefresh": true
       }
     },
     {
@@ -23,21 +15,28 @@
     },
     {
       "path": "pages/profile/index"
+    },
+    {
+      "path": "pages/goods/index"
+    },
+    {
+      "path": "pages/list/index"
+    },
+    {
+      "path": "pages/order/index"
+    },
+    {
+      "path": "pages/auth/index"
     }
   ],
-  // 相当于小程序的window
   "globalStyle": {
-    "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "黑马优购",
-    "navigationBarBackgroundColor": "#ff2d4a",
-    "backgroundColor": "#F8F8F8"
+    "navigationBarBackgroundColor": "#ea4451",
+    "navigationBarTitleText": "黑马优购"
   },
-  // 配置标签页
   "tabBar": {
-    "color": "#000",
-    "selectedColor": "#ff2d4a",
+    "color": "#333",
     "backgroundColor": "#fff",
-    "borderStyle": "white",
+    "selectedColor": "#ea4451",
     "list": [
       {
         "text": "首页",
