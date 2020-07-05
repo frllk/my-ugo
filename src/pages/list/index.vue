@@ -31,18 +31,18 @@ export default {
       goods: [],
       total: 0,
       pagenum: 1
-    };
+    }
   },
   methods: {
     goDetail() {
       uni.navigateTo({
-        url: "/pages/goods/index"
-      });
+        url: '/pages/goods/index'
+      })
     }
   },
   onLoad(params) {
-    console.log("query", params, params.query);
-    this.getGoods(params.query);
+    console.log('query', params, params.query)
+    this.getGoods(params.query)
   },
   methods: {
     // 获取商品列表
@@ -51,20 +51,20 @@ export default {
         msg: { status },
         data
       } = await this.request({
-        url: "/api/public/v1/goods/search",
+        url: '/api/public/v1/goods/search',
         data: {
           query,
           pagenum: this.pagenum
         }
-      });
+      })
       if (status === 200) {
-        this.goods = data.goods;
-        this.total = data.total;
+        this.goods = data.goods
+        this.total = data.total
       }
-      console.log("searchResult", data);
+      console.log('searchResult', data)
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">

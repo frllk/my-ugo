@@ -1,12 +1,7 @@
 <template>
   <view class="wrapper">
     <!-- 商品图片 -->
-    <swiper
-      class="pics"
-      indicator-dots
-      indicator-color="rgba(255, 255, 255, 0.6)"
-      indicator-active-color="#fff"
-    >
+    <swiper class="pics" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)" indicator-active-color="#fff">
       <swiper-item>
         <image src="http://static.botue.com/ugo/uploads/detail_1.jpg" />
       </swiper-item>
@@ -49,16 +44,16 @@ export default {
   methods: {
     goCart() {
       uni.switchTab({
-        url: "/pages/cart/index"
-      });
+        url: '/pages/cart/index'
+      })
     },
     createOrder() {
       uni.navigateTo({
-        url: "/pages/order/index"
-      });
+        url: '/pages/order/index'
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -117,7 +112,7 @@ export default {
     top: 91rpx;
   }
 
-  [class*="icon-"]::before {
+  [class*='icon-']::before {
     display: block;
     font-size: 45rpx;
     margin-bottom: 10rpx;
@@ -185,7 +180,7 @@ export default {
     box-sizing: border-box;
   }
 
-  [class*="icon"]::before {
+  [class*='icon']::before {
     display: block;
     font-size: 45rpx;
     margin-bottom: 2rpx;

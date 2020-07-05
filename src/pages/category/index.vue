@@ -34,21 +34,21 @@
 </template>
 
 <script>
-import search from "@/components/search";
+import search from '@/components/search'
 
 export default {
   data() {
     return {
       cates: [],
       activeIndex: 0
-    };
+    }
   },
   components: {
     search
   },
   onLoad() {
-    console.log("分类页面");
-    this.getCategorys();
+    console.log('分类页面')
+    this.getCategorys()
   },
   methods: {
     // 加载分类列表
@@ -57,25 +57,25 @@ export default {
         msg: { status },
         data
       } = await this.request({
-        url: "/api/public/v1/categories"
-      });
+        url: '/api/public/v1/categories'
+      })
       if (status === 200) {
-        this.cates = data;
+        this.cates = data
       }
-      console.log(data);
+      console.log(data)
     },
     // 处理分类点击事件
     hClickCate(index) {
-      console.log(index);
-      this.activeIndex = index;
+      console.log(index)
+      this.activeIndex = index
     }
   },
   computed: {
     cate_list() {
-      return this.cates.length && this.cates[this.activeIndex].children;
+      return this.cates.length && this.cates[this.activeIndex].children
     }
   }
-};
+}
 </script>
 
 <style scoped lang="scss">
@@ -113,7 +113,7 @@ scroll-view {
         position: relative;
 
         &::before {
-          content: "";
+          content: '';
           display: block;
           width: 8rpx;
           height: 60rpx;
@@ -147,13 +147,13 @@ scroll-view {
         font-size: 30rpx;
 
         &::before {
-          content: "/";
+          content: '/';
           margin-right: 20rpx;
           color: #666;
         }
 
         &::after {
-          content: "/";
+          content: '/';
           margin-left: 20rpx;
           color: #666;
         }
