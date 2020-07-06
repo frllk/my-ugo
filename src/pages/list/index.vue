@@ -46,7 +46,7 @@ export default {
   methods: {
     goDetail(id) {
       uni.navigateTo({
-        url: '/pages/goods/index?goods_id' + id
+        url: '/pages/goods/index?goods_id=' + id
       })
     },
     // 页面到底部了

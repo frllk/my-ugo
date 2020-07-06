@@ -1,33 +1,22 @@
 <template>
   <view class="wrapper">
     <!-- 商品图片 -->
-    <swiper class="pics" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)" indicator-active-color="#fff">
-      <swiper-item>
-        <image src="http://static.botue.com/ugo/uploads/detail_1.jpg" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://static.botue.com/ugo/uploads/detail_2.jpg" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://static.botue.com/ugo/uploads/detail_3.jpg" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://static.botue.com/ugo/uploads/detail_4.jpg" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://static.botue.com/ugo/uploads/detail_5.jpg" />
+    <swiper autoplay class="pics" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)"
+      indicator-active-color="#fff">
+      <swiper-item v-for="item in prd.pics" :key="item.pics_id">
+        <image :src="item.pics_big" />
       </swiper-item>
     </swiper>
     <!-- 基本信息 -->
     <view class="meta">
-      <view class="price">￥199</view>
-      <view class="name">初语秋冬新款毛衣女 套头宽松针织衫简约插肩袖上衣</view>
+      <view class="price">￥{{prd.goods_price}}</view>
+      <view class="name">{{prd.goods_name}}</view>
       <view class="shipment">快递: 免运费</view>
       <text class="collect icon-star">收藏</text>
     </view>
     <!-- 商品详情 -->
     <view class="detail">
-      <rich-text></rich-text>
+      <rich-text v-html="prd.goods_introduce"></rich-text>
     </view>
     <!-- 操作 -->
     <view class="action">
@@ -41,6 +30,16 @@
 
 <script>
 export default {
+  data() {
+    return {
+      prd: null
+    }
+  },
+  onLoad(query) {
+    console.log('详情', query)
+    this.query = query
+    this.getDetails(this.query)
+  },
   methods: {
     goCart() {
       uni.switchTab({
@@ -51,6 +50,19 @@ export default {
       uni.navigateTo({
         url: '/pages/order/index'
       })
+    },
+    async getDetails(query) {
+      let {
+        msg: { status },
+        data
+      } = await this.request({
+        url: '/api/public/v1/goods/detail',
+        data: query
+      })
+      if (status === 200) {
+        this.prd = data
+      }
+      console.log(status, data)
     }
   }
 }
