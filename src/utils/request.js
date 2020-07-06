@@ -13,7 +13,8 @@ const BASE_URL = 'https://api-ugo-dev.itheima.net'
 export default async function request({ url, method, data, header }) {
   // 请求之前 => loading
   uni.showLoading({
-    title: '请求中...'
+    title: '请求中...',
+    mask: true
   })
   let [error, res] = await uni.request({
     url: `${BASE_URL}${url}`,

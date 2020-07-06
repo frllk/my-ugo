@@ -7,8 +7,8 @@
       <text>价格</text>
     </view>
     <!-- 商品列表 -->
-    <scroll-view class="goods" scroll-y>
-      <view v-for="good in goods" :key="good.goods_id" class="item" @click="goDetail">
+    <scroll-view @scrolltolower="getMore" class="goods" scroll-y>
+      <view v-for="good in goods" :key="good.goods_id" class="item" @click="goDetail(good.goods_id)">
         <!-- 商品图片 -->
         <image class="pic" :src="good.goods_small_logo" />
         <!-- 商品信息 -->
@@ -20,6 +20,7 @@
           </view>
         </view>
       </view>
+      <view v-if="hasNoData" class="nodata">没有更多数据了</view>
     </scroll-view>
   </view>
 </template>
@@ -33,41 +34,63 @@ export default {
       pagenum: 1
     }
   },
+  onLoad(query) {
+    this.query = query
+    this.query.pagenum = 1
+    this.query.pagesize = 5
+    this.getGoods()
+  },
+  onReachBottom() {
+    console.log('钩子函数===页面到底部啦~~~')
+  },
   methods: {
-    goDetail() {
+    goDetail(id) {
       uni.navigateTo({
-        url: '/pages/goods/index'
+        url: '/pages/goods/index?goods_id' + id
       })
-    }
-  },
-  onLoad(params) {
-    console.log('query', params, params.query)
-    this.getGoods(params.query)
-  },
-  methods: {
+    },
+    // 页面到底部了
+    getMore() {
+      console.log('scroll-view事件：页面到底了~~~')
+      // 获取下一页的数据=》调用接口
+      // 1.判断数据是否加载完成
+      // 2.每次触底=》页码加1
+      if (this.total === this.goods.length) return false
+      this.query.pagenum++
+      this.getGoods()
+    },
     // 获取商品列表
-    async getGoods(query) {
+    async getGoods() {
       let {
         msg: { status },
         data
       } = await this.request({
         url: '/api/public/v1/goods/search',
-        data: {
-          query,
-          pagenum: this.pagenum
-        }
+        data: this.query
       })
       if (status === 200) {
-        this.goods = data.goods
+        // 增量
+        this.goods.push(...data.goods)
         this.total = data.total
       }
       console.log('searchResult', data)
+    }
+  },
+  computed: {
+    hasNoData() {
+      return this.total === this.goods.length
     }
   }
 }
 </script>
 
 <style scoped lang="scss">
+.nodata {
+  margin: 30rpx;
+  color: #666;
+  font-size: 24rpx;
+  text-align: center;
+}
 .filter {
   display: flex;
   height: 96rpx;
