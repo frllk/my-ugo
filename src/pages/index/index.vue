@@ -42,24 +42,25 @@
       <text>我是有底线的！</text>
     </view>
     <!-- 回到顶部 -->
-    <view @click="goTop" class="goTop icon-top"></view>
+    <view v-if="isShowTop" @click="goTop" class="goTop icon-top"></view>
   </view>
 </template>
 
 <script>
 // 导入组件
-import search from "@/components/search";
+import search from '@/components/search'
 export default {
   data() {
     return {
-      pageHeight: "auto",
+      pageHeight: 'auto',
       // 轮播图
       swiper: [],
       // 导航
       navs: [],
       // 楼层
-      floors: []
-    };
+      floors: [],
+      scrollTop: 0 // 滚动高度
+    }
   },
   // 注册组件
   components: {
@@ -74,31 +75,51 @@ export default {
     //     console.log(data, res);
     //   }
     // });
-    this.getSwiperData();
-    this.getNavsData();
-    this.getFloorsData();
+    // // js=>触发下拉刷新
+    // uni.startPullDownRefresh()
+    // 获取屏幕高度=>存储到this上 固定不变，第一次拿到存着就行
+    this.wh = uni.getSystemInfoSync().windowHeight / 2
+    this.getSwiperData()
+    this.getNavsData()
+    this.getFloorsData()
   },
   onPullDownRefresh() {
-    console.log("开始刷新...");
+    console.log('开始刷新...')
+    /**
+     * Promise.all
+     * 1.批量执行Promise方法
+     * 2.执行完=》返回Promise => then => 拿到批量执行的Promise方法resolve的结果
+     */
     Promise.all([
       this.getSwiperData(),
       this.getNavsData(),
       this.getFloorsData()
-    ]).then(() => {
+    ]).then(res => {
+      console.log('数组中所有Promise都执行完了：', res)
       // 执行完停止loading
-      uni.stopPullDownRefresh();
-    });
+      uni.stopPullDownRefresh()
+    })
+  },
+  /**
+   * 点击回到顶部
+   * 1.获取滚动的高度
+   * 2.高度 > 屏幕高度的一半 => 显示回到顶部按钮
+   */
+  onPageScroll(opt) {
+    // console.log('opt===', opt, this.wh)
+    // 获取滚动高度
+    this.scrollTop = opt.scrollTop
   },
   methods: {
     // 搜索时禁止页面滚动
     disScroll(e) {
-      this.pageHeight = e;
+      this.pageHeight = e
     },
     goTop() {
       uni.pageScrollTo({
         scrollTop: 0,
         duration: 300
-      });
+      })
     },
     // 获取轮播图数据
     async getSwiperData() {
@@ -106,12 +127,12 @@ export default {
         msg: { status },
         data
       } = await this.request({
-        url: "/api/public/v1/home/swiperdata"
-      });
+        url: '/api/public/v1/home/swiperdata'
+      })
       if (status === 200) {
-        this.swiper = data;
+        this.swiper = data
       }
-      console.log(data);
+      // console.log(data)
     },
     // 获取分类导航数据
     async getNavsData() {
@@ -119,12 +140,12 @@ export default {
         msg: { status },
         data
       } = await this.request({
-        url: "/api/public/v1/home/catitems"
-      });
+        url: '/api/public/v1/home/catitems'
+      })
       if (status === 200) {
-        this.navs = data;
+        this.navs = data
       }
-      console.log(data);
+      // console.log(data)
     },
     // 获取楼层数据
     async getFloorsData() {
@@ -132,15 +153,20 @@ export default {
         msg: { status },
         data
       } = await this.request({
-        url: "/api/public/v1/home/floordata"
-      });
+        url: '/api/public/v1/home/floordata'
+      })
       if (status === 200) {
-        this.floors = data;
+        this.floors = data
       }
-      console.log(data);
+      // console.log(data)
+    }
+  },
+  computed: {
+    isShowTop() {
+      return this.scrollTop > this.wh
     }
   }
-};
+}
 </script>
 
 <style lang="scss">

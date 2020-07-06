@@ -1,57 +1,108 @@
 <template>
   <view class="search" :class="{focused:isSearch}">
     <view class="sinput">
-      <input @focus="search" type="text" placeholder="搜索" />
+      <input v-model="keyword" @input="searchPrd" @confirm="goList" @focus="search" type="text" placeholder="搜索" />
       <button @click="cancel">取消</button>
     </view>
     <view class="scontent" v-show="isSearch">
       <div class="title">
         搜索历史
-        <span class="clear"></span>
+        <span @click="clearHistory" class="clear"></span>
       </div>
-      <div class="history">
-        <navigator url="/pages/list/index">小米</navigator>
-        <navigator url="/pages/list/index">智能电视</navigator>
-        <navigator url="/pages/list/index">小米空气净化器</navigator>
-        <navigator url="/pages/list/index">西门子洗碗机</navigator>
-        <navigator url="/pages/list/index">华为手机</navigator>
-        <navigator url="/pages/list/index">苹果</navigator>
-        <navigator url="/pages/list/index">锤子</navigator>
+      <div class="history" v-if="list.length==0">
+        <navigator v-for="(item, index) in history" :key="index" :url="'/pages/list/index?query='+item">{{item}}
+        </navigator>
       </div>
+      <!-- 搜索结果 -->
+      <scroll-view scroll-y class="result" v-else>
+        <navigator v-for="item in list" :key="item.good_id" url="/pages/list/index">{{item.goods_name}}</navigator>
+      </scroll-view>
     </view>
   </view>
 </template>
 
 <script>
+// 本地存储key
+const STROAGE_KEY = 'history'
 export default {
   data() {
     return {
       // 是否是搜索状态
-      isSearch: false
-    };
+      isSearch: false,
+      history: uni.getStorageSync(STROAGE_KEY) || [], // 搜索历史
+      keyword: '', // 搜索关键字
+      list: [] // 搜索结果
+    }
+  },
+  onLoad() {
+    console.log(uni.getStorageSync(STROAGE_KEY))
   },
   methods: {
     search() {
       // 进入搜索状态
-      this.isSearch = true;
+      this.isSearch = true
       // 获取设备的高度
-      console.log(uni.getSystemInfoSync());
-      const pageHeight = uni.getSystemInfoSync().windowHeight + "rpx";
+      // console.log(uni.getSystemInfoSync())
+      const pageHeight = uni.getSystemInfoSync().windowHeight + 'rpx'
       // 触发自定义事件，传递数据
-      this.$emit("setHeight", pageHeight);
+      this.$emit('setHeight', pageHeight)
       // 隐藏tabBar
-      uni.hideTabBar();
+      uni.hideTabBar()
     },
     cancel() {
       // 恢复默认状态
-      this.isSearch = false;
+      this.isSearch = false
       // 首页继续滚动
-      this.$emit("setHeight", "auto");
+      this.$emit('setHeight', 'auto')
       // 显示tabBar
-      uni.showTabBar();
+      uni.showTabBar()
+      this.keyword = ''
+      this.list = []
+    },
+    // 根据关键词搜索=》建议商品
+    async searchPrd() {
+      // 获取搜索关键词
+      let {
+        msg: { status },
+        data
+      } = await this.request({
+        url: '/api/public/v1/goods/qsearch',
+        data: {
+          query: this.keyword
+        }
+      })
+      if (status === 200) {
+        this.list = data
+      }
+      console.log('获取搜索结果', data)
+    },
+    // 输入确定后=》跳转结果页面
+    goList() {
+      // console.log('go')
+      // 存储搜索关键词
+      this.history.unshift(this.keyword)
+      this.history = [...new Set(this.history)]
+      // 异步存不阻塞
+      uni.setStorage({
+        key: STROAGE_KEY,
+        data: this.history
+      })
+      // 跳转到结果页
+      uni.navigateTo({
+        url: '/pages/list/index?query=' + this.keyword
+      })
+    },
+    // 清除搜索历史
+    clearHistory() {
+      // 清楚页面=》内存中的数据
+      this.history = []
+      // 清除本地数据
+      uni.removeStorage({
+        key: STROAGE_KEY
+      })
     }
   }
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -69,7 +120,7 @@ export default {
       position: absolute;
       top: 28rpx;
       left: 302rpx;
-      content: "";
+      content: '';
       width: 44rpx;
       height: 44rpx;
       line-height: 1;
@@ -156,7 +207,7 @@ export default {
     }
 
     .result {
-      display: none;
+      // display: none;
       position: absolute;
       left: 0;
       right: 0;
