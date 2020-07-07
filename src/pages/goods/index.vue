@@ -1,8 +1,7 @@
 <template>
   <view class="wrapper">
     <!-- 商品图片 -->
-    <swiper autoplay class="pics" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)"
-      indicator-active-color="#fff">
+    <swiper autoplay class="pics" indicator-dots indicator-color="rgba(255, 255, 255, 0.6)" indicator-active-color="#fff">
       <swiper-item v-for="item in prd.pics" :key="item.pics_id">
         <image :src="item.pics_big" />
       </swiper-item>
@@ -16,42 +15,49 @@
     </view>
     <!-- 商品详情 -->
     <view class="detail">
-      <rich-text v-html="prd.goods_introduce"></rich-text>
+      <!-- vue方式 -->
+      <!-- <block v-html="prd.goods_introduce"></block> -->
+      <!-- 小程序方式：不需要在打包 -->
+      <rich-text :nodes="prd.goods_introduce"></rich-text>
     </view>
+    <!-- <view class="detail">
+    </view> -->
     <!-- 操作 -->
     <view class="action">
       <button open-type="contact" class="icon-handset">联系客服</button>
       <text class="cart icon-cart" @click="goCart">购物车</text>
-      <text class="add">加入购物车</text>
+      <text class="add" @click="hAddCart">加入购物车</text>
       <text class="buy" @click="createOrder">立即购买</text>
     </view>
   </view>
 </template>
 
 <script>
+const STORAGE_CARTS = 'carts'
 export default {
-  data() {
+  data () {
     return {
-      prd: null
+      prd: null, // 商品详情数据
+      carts: uni.getStorageSync(STORAGE_CARTS) || [] // 购物车本地数据
     }
   },
-  onLoad(query) {
+  onLoad (query) {
     console.log('详情', query)
     this.query = query
     this.getDetails(this.query)
   },
   methods: {
-    goCart() {
+    goCart () {
       uni.switchTab({
         url: '/pages/cart/index'
       })
     },
-    createOrder() {
+    createOrder () {
       uni.navigateTo({
         url: '/pages/order/index'
       })
     },
-    async getDetails(query) {
+    async getDetails (query) {
       let {
         msg: { status },
         data
@@ -63,6 +69,45 @@ export default {
         this.prd = data
       }
       console.log(status, data)
+    },
+    // 向购物车添加商品
+    hAddCart () {
+      /**
+       * goods_id,  goods_name,  goods_price, goods_small_logo, 
+       * goods_count(数量), goods_checked(是否被选中)
+       * 1.排重？之前这个商品在购物车中是否存在，
+       *  如果存在 => 加数量
+       *  不存在 => 新增商品
+       */
+      // 如果当前详情页的商品id和本地存储中的商品id => 做对比
+      let flag = this.carts.some((item) => {
+        console.log(this.prd.goods_id === item.goods_id, this.prd.goods_id, item.goods_id)
+        if (this.prd.goods_id === item.goods_id) {
+          // 存在的数据 => 数量 + 1
+          item.goods_count++
+          return true
+        }
+      })
+
+      // 不存在 => 新增商品
+      if (!flag) {
+        // 解构出：当前商品详情页的数据
+        const { goods_id, goods_name, goods_price, goods_small_logo } = this.prd
+        // 新增
+        this.carts.push({
+          goods_id,
+          goods_name,
+          goods_price,
+          goods_small_logo,
+          goods_count: 1, // 默认加进来数量是1
+          goods_checked: true // 默认选中
+        })
+      }
+      // 本地存储，本地持久化
+      uni.setStorage({
+        key: STORAGE_CARTS,
+        data: this.carts
+      });
     }
   }
 }

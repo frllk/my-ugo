@@ -4,10 +4,9 @@
     <search @search="disScroll" />
     <!-- 轮播图 -->
     <view class="slider">
-      <swiper autoplay interval="2000" circular indicator-dots indicator-color="rgba(255,255,255,1)"
-        indicator-active-color="rgba(255,255,255,.6)">
+      <swiper autoplay interval="2000" circular indicator-dots indicator-color="rgba(255,255,255,1)" indicator-active-color="rgba(255,255,255,.6)">
         <swiper-item v-for="item in swiper" :key="item.goods_id">
-          <navigator :url="'/pages/goods/index?id='+item.goods_id">
+          <navigator :url="'/pages/goods/index?goods_id='+item.goods_id">
             <image :src="item.image_src" />
           </navigator>
         </swiper-item>
@@ -15,9 +14,7 @@
     </view>
     <!-- 功能导航 -->
     <view class="navs">
-      <navigator v-for="(item, index) in navs" :key="index"
-        :url="item.navigator_url ? '/pages/category/index': '/pages/list/index?query='+item.name"
-        :open-type="item.open_type || 'navigate'">
+      <navigator v-for="(item, index) in navs" :key="index" :url="item.navigator_url ? '/pages/category/index': '/pages/list/index?query='+item.name" :open-type="item.open_type || 'navigate'">
         <image :src="item.image_src" />
       </navigator>
     </view>
@@ -50,7 +47,7 @@
 // 导入组件
 import search from '@/components/search'
 export default {
-  data() {
+  data () {
     return {
       pageHeight: 'auto',
       // 轮播图
@@ -67,7 +64,7 @@ export default {
     search
   },
   // vue=>created
-  onLoad() {
+  onLoad () {
     // uni.request({
     //   url: "https://api-ugo-dev.itheima.net/api/public/v1/home/swiperdata",
     //   success(res) {
@@ -83,7 +80,7 @@ export default {
     this.getNavsData()
     this.getFloorsData()
   },
-  onPullDownRefresh() {
+  onPullDownRefresh () {
     console.log('开始刷新...')
     /**
      * Promise.all
@@ -105,24 +102,24 @@ export default {
    * 1.获取滚动的高度
    * 2.高度 > 屏幕高度的一半 => 显示回到顶部按钮
    */
-  onPageScroll(opt) {
+  onPageScroll (opt) {
     // console.log('opt===', opt, this.wh)
     // 获取滚动高度
     this.scrollTop = opt.scrollTop
   },
   methods: {
     // 搜索时禁止页面滚动
-    disScroll(e) {
+    disScroll (e) {
       this.pageHeight = e
     },
-    goTop() {
+    goTop () {
       uni.pageScrollTo({
         scrollTop: 0,
         duration: 300
       })
     },
     // 获取轮播图数据
-    async getSwiperData() {
+    async getSwiperData () {
       let {
         msg: { status },
         data
@@ -135,7 +132,7 @@ export default {
       // console.log(data)
     },
     // 获取分类导航数据
-    async getNavsData() {
+    async getNavsData () {
       let {
         msg: { status },
         data
@@ -148,7 +145,7 @@ export default {
       // console.log(data)
     },
     // 获取楼层数据
-    async getFloorsData() {
+    async getFloorsData () {
       let {
         msg: { status },
         data
@@ -162,7 +159,7 @@ export default {
     }
   },
   computed: {
-    isShowTop() {
+    isShowTop () {
       return this.scrollTop > this.wh
     }
   }
