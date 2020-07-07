@@ -26,6 +26,8 @@
     <view class="action">
       <button open-type="contact" class="icon-handset">联系客服</button>
       <text class="cart icon-cart" @click="goCart">购物车</text>
+      <!-- 显示购物车添加商品的数量 -->
+      <text class="cartNum">{{carts.length}}</text>
       <text class="add" @click="hAddCart">加入购物车</text>
       <text class="buy" @click="createOrder">立即购买</text>
     </view>
@@ -242,5 +244,17 @@ export default {
     font-size: 45rpx;
     margin-bottom: 2rpx;
   }
+}
+.cartNum {
+  position: absolute;
+  top: -10rpx;
+  left: 260rpx;
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  background-color: #ea4451;
+  border-radius: 60rpx;
+  color: #fff;
 }
 </style>

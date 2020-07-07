@@ -15,92 +15,158 @@
       <view class="item">
         <!-- 店铺名称 -->
         <view class="shopname">优购生活馆</view>
-        <view class="goods">
+        <!-- 遍历购物车的商品 -->
+        <view v-for="(prd, i) in carts" :key="prd.goods_id" class="goods">
           <!-- 商品图片 -->
-          <image class="pic" src="http://static.botue.com/ugo/uploads/goods_1.jpg" />
+          <image class="pic" :src="prd.goods_small_logo" />
           <!-- 商品信息 -->
           <view class="meta">
-            <view class="name">【海外购自营】黎珐(ReFa) MTG日本 CARAT铂金微电流瘦脸瘦身提拉紧致V脸美容仪 【保税仓发货】</view>
+            <view class="name">{{prd.goods_name}}</view>
             <view class="price">
-              <text>￥</text>1399
+              <text>￥</text>{{prd.goods_price}}
               <text>.00</text>
             </view>
             <!-- 加减 -->
             <view class="amount">
-              <text class="reduce">-</text>
-              <input type="number" value="1" class="number" />
-              <text class="plus">+</text>
+              <text @click="changeCount(i,-1)" class="reduce">-</text>
+              <input type="number" v-model="prd.goods_count" class="number" />
+              <text @click="changeCount(i,1)" class="plus">+</text>
             </view>
           </view>
           <!-- 选框 -->
-          <view class="checkbox">
-            <icon type="success" size="20" color="#ea4451"></icon>
-          </view>
-        </view>
-        <view class="goods">
-          <!-- 商品图片 -->
-          <image class="pic" src="http://static.botue.com/ugo/uploads/goods_2.jpg" />
-          <!-- 商品信息 -->
-          <view class="meta">
-            <view class="name">【海外购自营】黎珐(ReFa) MTG日本 CARAT铂金微电流瘦脸瘦身提拉紧致V脸美容仪 【保税仓发货】</view>
-            <view class="price">
-              <text>￥</text>1399
-              <text>.00</text>
-            </view>
-            <!-- 加减 -->
-            <view class="amount">
-              <text class="reduce">-</text>
-              <input type="number" value="1" class="number" />
-              <text class="plus">+</text>
-            </view>
-          </view>
-          <!-- 选框 -->
-          <view class="checkbox">
-            <icon type="success" size="20" color="#ea4451"></icon>
-          </view>
-        </view>
-        <view class="goods">
-          <!-- 商品图片 -->
-          <image class="pic" src="http://static.botue.com/ugo/uploads/goods_5.jpg" />
-          <!-- 商品信息 -->
-          <view class="meta">
-            <view class="name">【海外购自营】黎珐(ReFa) MTG日本 CARAT铂金微电流瘦脸瘦身提拉紧致V脸美容仪 【保税仓发货】</view>
-            <view class="price">
-              <text>￥</text>1399
-              <text>.00</text>
-            </view>
-            <!-- 加减 -->
-            <view class="amount">
-              <text class="reduce">-</text>
-              <input type="number" value="1" class="number" />
-              <text class="plus">+</text>
-            </view>
-          </view>
-          <!-- 选框 -->
-          <view class="checkbox">
-            <icon type="success" size="20" color="#ccc"></icon>
+          <view class="checkbox" @click="selPrd(i)">
+            <!-- 商品选择=>单选 -->
+            <icon type="success" size="20" :color="prd.goods_checked?'#ea4451':'#ccc'"></icon>
           </view>
         </view>
       </view>
     </view>
     <!-- 其它 -->
     <view class="extra">
-      <label class="checkall">
-        <icon type="success" color="#ccc" size="20"></icon>全选
+      <label class="checkall" @click="selAll">
+        <icon type="success" :color="isSelAll?'#ea4451':'#ccc'" size="20"></icon>全选
       </label>
       <view class="total">
         合计:
         <text>￥</text>
-        <label>14110</label>
+        <label>{{amount}}</label>
         <text>.00</text>
       </view>
-      <view class="pay">结算(3)</view>
+      <view class="pay">结算({{seledPrd.length}})</view>
     </view>
   </view>
 </template>
 
 <script>
-export default {};
+const STORAGE_CARTS = 'carts'
+export default {
+  data () {
+    return {
+      // 购物车数据
+      carts: []
+    }
+  },
+  onLoad () {
+    console.log(this.carts)
+  },
+  // 页面显示的时候执行的一个钩子
+  onShow () {
+    console.log('页面显示的时候执行的一个钩子')
+    this.getCarts()
+  },
+  methods: {
+    // 商品全选
+    selAll () {
+      /**
+       * 1.如果是全部选中状态 => 取反 => 全部选不中
+       * 2.不是全部选中状态 => 全部选中
+       */
+      if (this.isSelAll) {
+        // 情况1 取反
+        this.carts.forEach(item => item.goods_checked = false)
+      } else {
+        // 情况2 全部选中
+        this.carts.forEach(item => item.goods_checked = true)
+      }
+      this.updateCarts()
+    },
+    // 商品单选
+    selPrd (i) {
+      // 取反
+      this.carts[i].goods_checked = !this.carts[i].goods_checked
+      this.updateCarts()
+    },
+    getCarts () {
+      this.carts = uni.getStorageSync(STORAGE_CARTS) || []
+    },
+    /**
+     * 购物车商品数量+/-
+     * i：当前点击商品的索引
+     * step：决定+1/-1
+     */
+    changeCount (i, step) {
+      /**
+       * 1.限制：+ => 不能大于库存  - => 最小是1
+       * 2.满足数量范围（goods_count>=1 && goods_count<=库存）
+       * 3.正常加减 => 加减完同步数据到本地
+       */
+      // 获取当前点击商品的 数量
+      const curCount = this.carts[i].goods_count
+      let kc = 10 // 库存（假数据）
+      if (step === 1 && curCount >= kc) {
+        return uni.showToast({
+          title: '没货了！',
+          duration: 1000
+        });
+      } else if (step === -1 && curCount === 1) {
+        // -1操作
+        return uni.showToast({
+          title: '购物车数量最小是1！',
+          duration: 1000
+        });
+      }
+      // 正常加减操作
+      this.carts[i].goods_count += step
+      // 更新本地数据
+      this.updateCarts()
+    },
+    /**
+     * 更新本地购物车数据
+     */
+    updateCarts () {
+      uni.setStorage({
+        key: STORAGE_CARTS,
+        data: this.carts
+      });
+    }
+  },
+  computed: {
+    /**
+     * 商品是否全部选中
+     */
+    isSelAll () {
+      return this.carts.every(item => item.goods_checked === true)
+    },
+    /**
+     * 当前选中的商品
+     */
+    seledPrd () {
+      return this.carts.filter(item => item.goods_checked)
+    },
+    /**
+     * 总金额
+     */
+    amount () {
+      // let total = 0
+      // this.seledPrd.forEach(item => total += item.goods_price * item.goods_count);
+      // return total
+      return this.seledPrd.reduce((acc, cur) => {
+        // console.log(acc, cur.goods_price * cur.goods_count)
+        return acc + cur.goods_price * cur.goods_count
+      }, 0)
+    }
+  },
+};
 </script>
 
 <style scoped lang="scss">
